@@ -30,6 +30,7 @@ const (
 	POINTER_BOOL   Type = "pointer bool"
 	POINTER_FLOAT  Type = "pointer float"
 	POINTER_DOUBLE Type = "pointer double"
+	ANY            Type = "any"
 )
 
 func ValidateArguments(signature []Type, args []any) error {
@@ -129,6 +130,10 @@ func ValidateArguments(signature []Type, args []any) error {
 		case POINTER_DOUBLE:
 			{
 				_, ok = argValue.(*float64)
+			}
+		case ANY:
+			{
+				ok = true
 			}
 		default:
 			{
