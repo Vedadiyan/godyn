@@ -21,19 +21,23 @@ func ToPostfix(expr *ast.BinaryExpr) {
 
 }
 
-func ReadExpression(expr ast.Expr) (token.Token, string) {
+func evalBinary(context *Context, expr ast.Expr) (token.Token, string) {
 	switch t := expr.(type) {
 	case *ast.BinaryExpr:
 		{
-			return ReadBinaryExpression(t)
+			return readBinaryExpression(context, t)
 		}
 	case *ast.CallExpr:
 		{
-			panic("")
+			value, err := context.eval(t)
+			if err != nil {
+				panic("")
+			}
+			return token.OR, fmt.Sprintf("%v", value)
 		}
 	case *ast.ParenExpr:
 		{
-			return ReadExpression(t.X)
+			return evalBinary(context, t.X)
 		}
 	case *ast.BasicLit:
 		{
@@ -47,9 +51,9 @@ func ReadExpression(expr ast.Expr) (token.Token, string) {
 	return token.EOF, ""
 }
 
-func ReadBinaryExpression(expr *ast.BinaryExpr) (token.Token, string) {
-	left_token, left_value := ReadExpression(expr.X)
-	right_token, right_value := ReadExpression(expr.Y)
+func readBinaryExpression(context *Context, expr *ast.BinaryExpr) (token.Token, string) {
+	left_token, left_value := evalBinary(context, expr.X)
+	right_token, right_value := evalBinary(context, expr.Y)
 	if left_token != right_token {
 		panic("inavlid operation")
 	}

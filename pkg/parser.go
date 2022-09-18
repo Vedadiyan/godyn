@@ -47,6 +47,11 @@ func (context Context) eval(callExp *ast.CallExpr) (any, error) {
 				}
 				args = append(args, value)
 			}
+		case *ast.BinaryExpr:
+			{
+				_, value := evalBinary(&context, t)
+				args = append(args, value)
+			}
 		default:
 			{
 				return nil, errors.New("unsupported operation")
