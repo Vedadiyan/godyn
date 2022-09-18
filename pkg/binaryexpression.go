@@ -54,62 +54,126 @@ func evalBinary(context *Context, expr ast.Expr) (token.Token, string) {
 func readBinaryExpression(context *Context, expr *ast.BinaryExpr) (token.Token, string) {
 	left_token, left_value := evalBinary(context, expr.X)
 	right_token, right_value := evalBinary(context, expr.Y)
-	if left_token != right_token {
-		panic("inavlid operation")
-	}
-	if isNumber(left_token) {
-		left, err := strconv.ParseFloat(left_value, 64)
-		if err != nil {
-			panic("")
-		}
-		right, err := strconv.ParseFloat(right_value, 64)
-		if err != nil {
-			panic("")
-		}
+	// if left_token != right_token {
+	// 	panic("inavlid operation")
+	// }
+	if isLikeNumber(left_token, left_value) && isLikeNumber(right_token, right_value) {
+		left := getValue(left_value)
+		right := getValue(right_value)
 		switch expr.Op {
 		case token.ADD:
 			{
-				return left_token, fmt.Sprintf("%f", left+right)
+				return token.FLOAT, fmt.Sprintf("%f", left+right)
 			}
 		case token.SUB:
 			{
-				return left_token, fmt.Sprintf("%f", left-right)
+				return token.FLOAT, fmt.Sprintf("%f", left-right)
 			}
 		case token.MUL:
 			{
-				return left_token, fmt.Sprintf("%f", left*right)
+				return token.FLOAT, fmt.Sprintf("%f", left*right)
 			}
 		case token.QUO:
 			{
-				return left_token, fmt.Sprintf("%f", left/right)
+				return token.FLOAT, fmt.Sprintf("%f", left/right)
 			}
 		case token.REM:
 			{
-				return left_token, fmt.Sprintf("%f", math.Remainder(left, right))
+				return token.FLOAT, fmt.Sprintf("%f", math.Remainder(left, right))
 			}
+		case token.LAND:
+			fallthrough
 		case token.AND:
 			{
-				return left_token, fmt.Sprintf("%d", int(left)&int(right))
+				return token.FLOAT, fmt.Sprintf("%d", int(left)&int(right))
 			}
+		case token.LOR:
+			fallthrough
 		case token.OR:
 			{
-				return left_token, fmt.Sprintf("%d", int(left)|int(right))
+				return token.FLOAT, fmt.Sprintf("%d", int(left)|int(right))
 			}
 		case token.XOR:
 			{
-				return left_token, fmt.Sprintf("%d", int(left)^int(right))
+				return token.FLOAT, fmt.Sprintf("%d", int(left)^int(right))
 			}
 		case token.SHL:
 			{
-				return left_token, fmt.Sprintf("%d", int(left)<<int(right))
+				return token.FLOAT, fmt.Sprintf("%d", int(left)<<int(right))
 			}
 		case token.SHR:
 			{
-				return left_token, fmt.Sprintf("%d", int(left)>>int(right))
+				return token.FLOAT, fmt.Sprintf("%d", int(left)>>int(right))
 			}
 		case token.AND_NOT:
 			{
-				return left_token, fmt.Sprintf("%d", int(left)&^int(right))
+				return token.FLOAT, fmt.Sprintf("%d", int(left)&^int(right))
+			}
+		case token.EQL:
+			{
+				return token.FLOAT, fmt.Sprintf("%d", getBoolean(left == right))
+			}
+		case token.NEQ:
+			{
+				return token.FLOAT, fmt.Sprintf("%d", getBoolean(left != right))
+			}
+		case token.GTR:
+			{
+				return token.FLOAT, fmt.Sprintf("%d", getBoolean(left > right))
+			}
+		case token.GEQ:
+			{
+				return token.FLOAT, fmt.Sprintf("%d", getBoolean(left >= right))
+			}
+		case token.LSS:
+			{
+				return token.FLOAT, fmt.Sprintf("%d", getBoolean(left < right))
+			}
+		case token.LEQ:
+			{
+				return token.IDENT, fmt.Sprintf("%d", getBoolean(left < right))
+			}
+		}
+		panic("Invalid Data")
+	}
+	// if left_token == token.IDENT {
+	// 	// if isBoolean(left_value) && isBoolean(right_value) {
+	// 	// 	left, err := strconv.ParseBool(left_value)
+	// 	// 	if err != nil {
+	// 	// 		panic("")
+	// 	// 	}
+	// 	// 	right, err := strconv.ParseBool(right_value)
+	// 	// 	if err != nil {
+	// 	// 		panic("")
+	// 	// 	}
+	// 	// 	switch expr.Op {
+	// 	// 	case token.LAND:
+	// 	// 		{
+	// 	// 			return token.FLOAT, fmt.Sprintf("%d", getBoolean(left && right))
+	// 	// 		}
+	// 	// 	case token.LOR:
+	// 	// 		{
+	// 	// 			return token.FLOAT, fmt.Sprintf("%d", getBoolean(left || right))
+	// 	// 		}
+	// 	// 	}
+	// 	// }
+	// 	// v := 1
+	// 	// _ = v
+	// 	// panic("")
+	// }
+	if left_token == token.STRING {
+		switch expr.Op {
+		case token.EQL:
+			{
+				return token.IDENT, fmt.Sprintf("%t", left_value == right_value)
+			}
+		case token.NEQ:
+			{
+				return token.IDENT, fmt.Sprintf("%t", left_value != right_value)
+			}
+		case token.ADD:
+			{
+				return token.STRING, left_value + right_value
 			}
 		}
 	}
@@ -120,7 +184,7 @@ func readBinaryExpression(context *Context, expr *ast.BinaryExpr) (token.Token, 
 	return expr.Op, "XX"
 }
 
-func isNumber(kind token.Token) bool {
+func isLikeNumber(kind token.Token, value string) bool {
 	switch kind {
 	case token.INT:
 		fallthrough
@@ -131,10 +195,14 @@ func isNumber(kind token.Token) bool {
 			return true
 		}
 	}
-	return false
+	return isBoolean(value)
 }
 func isBoolean(value string) bool {
 	switch value {
+	case "1":
+		fallthrough
+	case "2":
+		fallthrough
 	case "false":
 		fallthrough
 	case "true":
@@ -143,4 +211,26 @@ func isBoolean(value string) bool {
 		}
 	}
 	return false
+}
+
+func getBoolean(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+func getValue(value string) float64 {
+	if isBoolean(value) {
+		v, err := strconv.ParseBool(value)
+		if err != nil {
+			panic(err)
+		}
+		return float64(getBoolean(v))
+	}
+	v, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		panic(err)
+	}
+	return v
 }

@@ -6,7 +6,7 @@ import (
 	godyn "github.com/vedadiyan/godyn/pkg"
 )
 
-const TEST = `fn((1+2)*3*(8*(8+3*(2+2)))+10+(1+2)*3*(8*(8+3*(2+2)))+10+(1+2)*3*(8*(8+3*(2+2)))+10+(1+2)*3*(8*(8+3*(2+2)))+10+(1+2)*3*(8*(8+3*(2+2)))+10+(1+2)*3*(8*(8+3*(2+2)))+10+(1+2)*3*(8*(8+3*(2+2)))+10)`
+const TEST = `fn(("s" != "s") && true || false)`
 
 // const TEST = `fn(value_a && false)`
 
@@ -18,7 +18,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	_ = value
 	fmt.Println(value)
+	fmt.Println(("s" != "s") && true || false)
 }
 
 func fn(args []any) (any, error) {
