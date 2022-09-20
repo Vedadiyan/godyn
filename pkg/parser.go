@@ -1,6 +1,7 @@
 package godyn
 
 import (
+	"bytes"
 	"errors"
 	"go/ast"
 	"go/parser"
@@ -58,6 +59,17 @@ func (context Context) eval(callExp *ast.CallExpr) (any, error) {
 		case *ast.Ident:
 			{
 				args = append(args, "$"+t.Name)
+			}
+		case *ast.SelectorExpr:
+			{
+				var buffer bytes.Buffer
+				x := t.X
+				for sel, ok := x.(*ast.SelectorExpr); ok; {
+					x = sel.X
+					buffer.WriteString(sel.Sel.Name)
+					buffer.WriteString(".")
+				}
+				buffer.WriteString(t.Sel.Name)
 			}
 		default:
 			{
