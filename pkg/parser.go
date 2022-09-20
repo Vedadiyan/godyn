@@ -6,7 +6,7 @@ import (
 	"go/ast"
 	"go/parser"
 
-	queue "github.com/Vedadiyan/gocollections/pkg/queue"
+	stack "github.com/Vedadiyan/gocollections/pkg/stack"
 )
 
 type Expression func(args []any) (any, error)
@@ -66,19 +66,19 @@ func (context Context) eval(callExp *ast.CallExpr) (any, error) {
 			{
 				var buffer bytes.Buffer
 				x := t.X
-				q := queue.New[string]()
+				q := stack.New[string]()
 				for {
 					sel, ok := x.(*ast.SelectorExpr)
 					if !ok {
 						ident := x.(*ast.Ident)
-						q.Enqueue(ident.Name)
+						q.Push(ident.Name)
 						break
 					}
 					x = sel.X
-					q.Enqueue(sel.Sel.Name)
+					q.Push(sel.Sel.Name)
 				}
 				for !q.IsEmpty() {
-					val, err := q.Dequeue()
+					val, err := q.Pop()
 					if err != nil {
 						return nil, err
 					}
@@ -86,10 +86,7 @@ func (context Context) eval(callExp *ast.CallExpr) (any, error) {
 					buffer.WriteString(".")
 				}
 				buffer.WriteString(t.Sel.Name)
-				str_ := buffer.String()
-				_ = str_
-				z := 0
-				_ = z
+				args = append(args, buffer.String())
 			}
 		default:
 			{
