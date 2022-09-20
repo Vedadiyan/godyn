@@ -49,8 +49,15 @@ func (context Context) eval(callExp *ast.CallExpr) (any, error) {
 			}
 		case *ast.BinaryExpr:
 			{
-				_, value := evalBinary(&context, t)
+				_, value, err := evalBinary(&context, t)
+				if err != nil {
+					return nil, err
+				}
 				args = append(args, value)
+			}
+		case *ast.Ident:
+			{
+				args = append(args, "$"+t.Name)
 			}
 		default:
 			{
