@@ -40,106 +40,106 @@ func evalBinary(context *Context, expr ast.Expr) (token.Token, string, error) {
 }
 
 func readBinaryExpression(context *Context, expr *ast.BinaryExpr) (token.Token, string, error) {
-	left_token, left_value, err := evalBinary(context, expr.X)
+	lt, lv, err := evalBinary(context, expr.X)
 	if err != nil {
 		return 0, "", err
 	}
-	right_token, right_value, err := evalBinary(context, expr.Y)
+	rt, rv, err := evalBinary(context, expr.Y)
 	if err != nil {
 		return 0, "", err
 	}
-	if isLikeNumber(left_token, left_value) && isLikeNumber(right_token, right_value) {
-		left := getValue(left_value)
-		right := getValue(right_value)
+	if isLikeNumber(lt, lv) && isLikeNumber(rt, rv) {
+		l := getValue(lv)
+		r := getValue(rv)
 		switch expr.Op {
 		case token.ADD:
 			{
-				return token.FLOAT, fmt.Sprintf("%f", left+right), nil
+				return token.FLOAT, fmt.Sprintf("%f", l+r), nil
 			}
 		case token.SUB:
 			{
-				return token.FLOAT, fmt.Sprintf("%f", left-right), nil
+				return token.FLOAT, fmt.Sprintf("%f", l-r), nil
 			}
 		case token.MUL:
 			{
-				return token.FLOAT, fmt.Sprintf("%f", left*right), nil
+				return token.FLOAT, fmt.Sprintf("%f", l*r), nil
 			}
 		case token.QUO:
 			{
-				return token.FLOAT, fmt.Sprintf("%f", left/right), nil
+				return token.FLOAT, fmt.Sprintf("%f", l/r), nil
 			}
 		case token.REM:
 			{
-				return token.FLOAT, fmt.Sprintf("%f", math.Remainder(left, right)), nil
+				return token.FLOAT, fmt.Sprintf("%f", math.Remainder(l, r)), nil
 			}
 		case token.LAND:
 			fallthrough
 		case token.AND:
 			{
-				return token.FLOAT, fmt.Sprintf("%d", int(left)&int(right)), nil
+				return token.FLOAT, fmt.Sprintf("%d", int(l)&int(r)), nil
 			}
 		case token.LOR:
 			fallthrough
 		case token.OR:
 			{
-				return token.FLOAT, fmt.Sprintf("%d", int(left)|int(right)), nil
+				return token.FLOAT, fmt.Sprintf("%d", int(l)|int(r)), nil
 			}
 		case token.XOR:
 			{
-				return token.FLOAT, fmt.Sprintf("%d", int(left)^int(right)), nil
+				return token.FLOAT, fmt.Sprintf("%d", int(l)^int(r)), nil
 			}
 		case token.SHL:
 			{
-				return token.FLOAT, fmt.Sprintf("%d", int(left)<<int(right)), nil
+				return token.FLOAT, fmt.Sprintf("%d", int(l)<<int(r)), nil
 			}
 		case token.SHR:
 			{
-				return token.FLOAT, fmt.Sprintf("%d", int(left)>>int(right)), nil
+				return token.FLOAT, fmt.Sprintf("%d", int(l)>>int(r)), nil
 			}
 		case token.AND_NOT:
 			{
-				return token.FLOAT, fmt.Sprintf("%d", int(left)&^int(right)), nil
+				return token.FLOAT, fmt.Sprintf("%d", int(l)&^int(r)), nil
 			}
 		case token.EQL:
 			{
-				return token.FLOAT, fmt.Sprintf("%d", getBoolean(left == right)), nil
+				return token.FLOAT, fmt.Sprintf("%d", getBoolean(l == r)), nil
 			}
 		case token.NEQ:
 			{
-				return token.FLOAT, fmt.Sprintf("%d", getBoolean(left != right)), nil
+				return token.FLOAT, fmt.Sprintf("%d", getBoolean(l != r)), nil
 			}
 		case token.GTR:
 			{
-				return token.FLOAT, fmt.Sprintf("%d", getBoolean(left > right)), nil
+				return token.FLOAT, fmt.Sprintf("%d", getBoolean(l > r)), nil
 			}
 		case token.GEQ:
 			{
-				return token.FLOAT, fmt.Sprintf("%d", getBoolean(left >= right)), nil
+				return token.FLOAT, fmt.Sprintf("%d", getBoolean(l >= r)), nil
 			}
 		case token.LSS:
 			{
-				return token.FLOAT, fmt.Sprintf("%d", getBoolean(left < right)), nil
+				return token.FLOAT, fmt.Sprintf("%d", getBoolean(l < r)), nil
 			}
 		case token.LEQ:
 			{
-				return token.IDENT, fmt.Sprintf("%d", getBoolean(left < right)), nil
+				return token.IDENT, fmt.Sprintf("%d", getBoolean(l < r)), nil
 			}
 		}
 		return 0, "", errors.New("invalid data")
 	}
-	if left_token == token.STRING && right_token == token.STRING {
+	if lt == token.STRING && rt == token.STRING {
 		switch expr.Op {
 		case token.EQL:
 			{
-				return token.IDENT, fmt.Sprintf("%t", left_value == right_value), nil
+				return token.IDENT, fmt.Sprintf("%t", lv == rv), nil
 			}
 		case token.NEQ:
 			{
-				return token.IDENT, fmt.Sprintf("%t", left_value != right_value), nil
+				return token.IDENT, fmt.Sprintf("%t", lv != rv), nil
 			}
 		case token.ADD:
 			{
-				return token.STRING, left_value + right_value, nil
+				return token.STRING, lv + rv, nil
 			}
 		}
 	}
@@ -161,9 +161,9 @@ func isLikeNumber(kind token.Token, value string) bool {
 }
 func isBoolean(value string) bool {
 	switch value {
-	case "1":
+	case "0":
 		fallthrough
-	case "2":
+	case "1":
 		fallthrough
 	case "false":
 		fallthrough
