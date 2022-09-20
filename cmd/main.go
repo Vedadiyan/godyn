@@ -6,7 +6,7 @@ import (
 	godyn "github.com/vedadiyan/godyn/pkg"
 )
 
-const TEST = `fn(("s" != "s") && true || false)`
+const TEST = `let(test, ld(x, x < 1))`
 
 // const TEST = `fn(value_a && false)`
 
@@ -20,7 +20,7 @@ func main() {
 	}
 	_ = value
 	fmt.Println(value)
-	fmt.Println(("s" != "s") && true || false)
+	fmt.Println(("s" == "s") && true || false)
 }
 
 func fn(args []any) (any, error) {
