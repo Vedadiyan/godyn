@@ -9,15 +9,15 @@ import (
 	"strconv"
 )
 
-func evalBinary(context *Context, expr ast.Expr) (token.Token, string, error) {
+func evalBinary[T any](ctx T, context *Godyn[T], expr ast.Expr) (token.Token, string, error) {
 	switch t := expr.(type) {
 	case *ast.BinaryExpr:
 		{
-			return readBinaryExpression(context, t)
+			return readBinaryExpression(ctx, context, t)
 		}
 	case *ast.CallExpr:
 		{
-			value, err := context.eval(t)
+			value, err := context.eval(ctx, t)
 			if err != nil {
 				return 0, "", err
 			}
@@ -25,7 +25,7 @@ func evalBinary(context *Context, expr ast.Expr) (token.Token, string, error) {
 		}
 	case *ast.ParenExpr:
 		{
-			return evalBinary(context, t.X)
+			return evalBinary(ctx, context, t.X)
 		}
 	case *ast.BasicLit:
 		{
@@ -39,12 +39,12 @@ func evalBinary(context *Context, expr ast.Expr) (token.Token, string, error) {
 	return 0, "", errors.New("invalid expression")
 }
 
-func readBinaryExpression(context *Context, expr *ast.BinaryExpr) (token.Token, string, error) {
-	lt, lv, err := evalBinary(context, expr.X)
+func readBinaryExpression[T any](data T, context *Godyn[T], expr *ast.BinaryExpr) (token.Token, string, error) {
+	lt, lv, err := evalBinary(data, context, expr.X)
 	if err != nil {
 		return 0, "", err
 	}
-	rt, rv, err := evalBinary(context, expr.Y)
+	rt, rv, err := evalBinary(data, context, expr.Y)
 	if err != nil {
 		return 0, "", err
 	}
