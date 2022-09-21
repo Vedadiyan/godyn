@@ -9,19 +9,19 @@ import (
 	stack "github.com/Vedadiyan/gocollections/pkg/stack"
 )
 
-type Expression func(args []any) (any, error)
+type Expression[T any] func(ctx T, args []any) (any, error)
 
-type Context struct {
-	expressions map[string]Expression
+type Godyn[T any] struct {
+	expressions map[string]Expression[T]
 }
 
-func New(expressions map[string]Expression) Context {
-	ctx := Context{}
-	ctx.expressions = expressions
-	return ctx
+func New[T any](expressions map[string]Expression[T]) Godyn[T] {
+	godyn := Godyn[T]{}
+	godyn.expressions = expressions
+	return godyn
 }
 
-func (context Context) Invoke(expr string) (any, error) {
+func (context Godyn[T]) Invoke(ctx T, expr string) (any, error) {
 	parsed, err := parser.ParseExpr(expr)
 	if err != nil {
 		return nil, err
@@ -30,10 +30,10 @@ func (context Context) Invoke(expr string) (any, error) {
 	if !ok {
 		return nil, errors.New("expression is not a call expression")
 	}
-	return context.eval(callExpr)
+	return context.eval(ctx, callExpr)
 }
 
-func (context Context) eval(callExp *ast.CallExpr) (any, error) {
+func (context Godyn[T]) eval(ctx T, callExp *ast.CallExpr) (any, error) {
 	ident := callExp.Fun.(*ast.Ident)
 	args := make([]any, 0)
 	for _, arg := range callExp.Args {
@@ -44,7 +44,7 @@ func (context Context) eval(callExp *ast.CallExpr) (any, error) {
 			}
 		case *ast.CallExpr:
 			{
-				value, err := context.eval(t)
+				value, err := context.eval(ctx, t)
 				if err != nil {
 					return nil, err
 				}
@@ -52,7 +52,7 @@ func (context Context) eval(callExp *ast.CallExpr) (any, error) {
 			}
 		case *ast.BinaryExpr:
 			{
-				_, value, err := evalBinary(&context, t)
+				_, value, err := evalBinary(ctx, &context, t)
 				if err != nil {
 					return nil, err
 				}
@@ -60,7 +60,7 @@ func (context Context) eval(callExp *ast.CallExpr) (any, error) {
 			}
 		case *ast.Ident:
 			{
-				args = append(args, "$"+t.Name)
+				args = append(args, t.Name)
 			}
 		case *ast.SelectorExpr:
 			{
@@ -94,5 +94,5 @@ func (context Context) eval(callExp *ast.CallExpr) (any, error) {
 			}
 		}
 	}
-	return context.expressions[ident.Name](args)
+	return context.expressions[ident.Name](ctx, args)
 }
