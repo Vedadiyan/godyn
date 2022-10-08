@@ -1,7 +1,6 @@
 package godyn
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -13,9 +12,9 @@ const (
 )
 
 func InvalidNumberOfArgumentsError(require int, recieved int) error {
-	return errors.New(fmt.Sprintf(string(INVALID_NUMBER_OF_ARGUMENTS), require, recieved))
+	return fmt.Errorf(fmt.Sprintf(string(INVALID_NUMBER_OF_ARGUMENTS), require, recieved))
 }
 
 func ArgumentMismatchError(argNumber int, requireType string, recievedType string) error {
-	return errors.New(fmt.Sprintf(string(ARGUMENT_MISMATCH), argNumber, requireType, recievedType))
+	return fmt.Errorf(fmt.Sprintf(string(ARGUMENT_MISMATCH), argNumber, requireType, recievedType))
 }
