@@ -6,7 +6,7 @@ import (
 	"go/ast"
 	"go/parser"
 
-	stack "github.com/Vedadiyan/gocollections/pkg/stack"
+	stack "github.com/vedadiyan/gocollections/pkg/stack"
 )
 
 type Expression[T any] func(ctx T, args []any) (any, error)
